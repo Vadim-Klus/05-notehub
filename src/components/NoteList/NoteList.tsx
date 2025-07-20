@@ -1,12 +1,12 @@
 import type { Note } from "../../types/note";
 import styles from "./NoteList.module.css";
 
-type Props = {
+type NoteListProps = {
   notes: Note[];
   onDelete: (id: number) => void;
 };
 
-export default function NoteList({ notes, onDelete }: Props) {
+export default function NoteList({ notes, onDelete }: NoteListProps) {
   return (
     <ul className={styles.list}>
       {notes.map((note) => (
