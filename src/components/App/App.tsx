@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchNotes, deleteNote } from "../../services/noteService";
+import { useQuery } from "@tanstack/react-query";
+import { fetchNotes } from "../../services/noteService";
 import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
@@ -17,22 +17,11 @@ export default function App() {
 
   const [debouncedSearch] = useDebounce(search, 1000);
 
-  const queryClient = useQueryClient();
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", { page, perPage, search: debouncedSearch }],
     queryFn: () => fetchNotes({ page, perPage, search: debouncedSearch }),
     placeholderData: (prev) => prev,
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteNote(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
-  });
-
-  const handleDeleteNote = (id: number) => {
-    deleteMutation.mutate(id);
-  };
 
   useEffect(() => {
     setPage(1);
@@ -66,7 +55,7 @@ export default function App() {
       {isError && <p>Error loading notes.</p>}
 
       {data?.notes?.length ? (
-        <NoteList notes={data.notes} onDelete={handleDeleteNote} />
+        <NoteList notes={data.notes} />
       ) : (
         !isLoading &&
         !isError && <p style={{ textAlign: "center" }}>No notes found.</p>
@@ -74,7 +63,7 @@ export default function App() {
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <NoteForm onSuccess={() => setIsModalOpen(false)} />
+          <NoteForm onClose={() => setIsModalOpen(false)} />
         </Modal>
       )}
     </div>
